@@ -15,7 +15,7 @@ const Common = {
         let stream = fs.createWriteStream(to)
         request(from).pipe(stream).on('close', function (err){
             console.log('down ok'+ from)
-            if(err) throw new Error("down " +from+ " failed"+ err)
+            if(err) throw "down " +from+ " failed"+ err
 
         })
     },
@@ -34,7 +34,7 @@ const Common = {
             })
         }else{
             console.log(dir+" dir not found")
-            throw new Error(dir+" dir not found")
+            throw dir+" dir not found"
         }
     },
     rmdirNotPreserve:(dir)=>{
@@ -45,12 +45,15 @@ const Common = {
         if (fs.existsSync(dir)){
             return fs.readdirSync(dir, (err, files) => {
                 if (err){
-                    throw new Error(`读取目录失败 ${err}`)
+                    throw `读取目录失败 ${err}`
                 }
             }).map(item => dir+"/"+item).join(spe)
         }else{
-            throw new Error(dir+" not found")
+            throw dir+" not found"
         }
+    },
+    restartErr: (msg) =>{
+        return msg.indexOf("python3 error:") !== -1 || msg.indexOf("gs error:") !== -1
     }
 }
 

@@ -5,11 +5,10 @@ const path = require('path')
 const fs = require('fs')
 
 const Docs2Pdf = {
-    copy_files: (paths)=>{
+    copy_files: (paths, bkDir)=>{
         let fileArr = [];
         let pathArr = Array.isArray(paths) ? paths : paths.split(",")
-        const bkDir = __dirname+"/bkDir_"+common.uuid()
-        fs.mkdirSync(bkDir)
+
 
         for (let i=0; i < pathArr.length; i++){
             let newPath = bkDir+"/"+i+path.extname(pathArr[i])
@@ -17,21 +16,21 @@ const Docs2Pdf = {
 
             let needCopy = true;
             if (common.isUrl(pathArr[i])){
-                throw new Error(pathArr[i]+" url not found")
+                throw pathArr[i]+" url not found"
                 // needCopy = false;
                 // common.downloadFile(pathArr[i],newPath)
                 // pathArr[i] = newPath
             }
             if (!fs.existsSync(pathArr[i])){
-                throw new Error(pathArr[i]+" not found")
+                throw pathArr[i]+" not found"
             }
 
             needCopy && fs.copyFile(pathArr[i], newPath, (err)=>{
-                if(err) throw new Error("copy file failed " + err)
+                if(err) throw "copy file failed " + err
             })
         }
 
-        return {fileArr, bkDir}
+        return fileArr
     },
     convert_files: async (dir)=>{
         try {
@@ -39,9 +38,13 @@ const Docs2Pdf = {
 
             stdout && console.log(`stdout: ${stdout}`);
             stderr && console.error(`stderr: ${stderr}`);
+            if (stdout && stdout.indexOf("ErrCode: 0x80000008")){
+                throw stdout
+            }
 
+            return true;
         } catch (error) {
-            throw new Error(`python3 error: ${error}`)
+            throw `python3 error: ${error}`
         }
     },
     merge_to_pdf: async (dir, out_put) =>{
@@ -55,22 +58,24 @@ const Docs2Pdf = {
             stderr && console.error(`stderr: ${stderr}`);
 
         } catch (error) {
-            throw new Error(`gs error: ${error}`)
+            throw `gs error: ${error}`
         }
     },
     handle:async (paths, out_put) => {
-        let bkDir = null;
+        const bkDir = __dirname+"/bkDir_"+common.uuid()
         try {
-            const obj = Docs2Pdf.copy_files(paths)
-            bkDir = obj.bkDir
+            fs.mkdirSync(bkDir)
 
-            await Docs2Pdf.convert_files(bkDir)
-            await Docs2Pdf.merge_to_pdf(bkDir, out_put)
+            const obj = Docs2Pdf.copy_files(paths,bkDir)
+            if (obj){
+                const convert_r = await Docs2Pdf.convert_files(bkDir)
+                convert_r === true && await Docs2Pdf.merge_to_pdf(bkDir, out_put)
+            }
 
         }catch (error){
             throw new Error(error)
         }finally {
-            bkDir && common.rmdirNotPreserve(bkDir)
+            common.rmdirNotPreserve(bkDir)
         }
     }
 }

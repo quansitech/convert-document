@@ -1,5 +1,6 @@
 const express = require('express')
 const Docs2Pdf = require("./docs2Pdf")
+const Common = require("./common")
 
 const app = express()
 
@@ -18,7 +19,11 @@ app.post('/', async function (req, res) {
             code: -1,
             msg: e.message
         });
-        return;
+        if (Common.restartErr(e.message)){
+            process.exit(0)
+        }else{
+            return;
+        }
     }
 
     res.send({

@@ -60,4 +60,4 @@ WORKDIR "/var/www/convert-document/src"
 
 RUN yarn install
 
-ENTRYPOINT ["bash", "-c","/var/www/convert-document/startServer.sh && tail -f /dev/null"]
+ENTRYPOINT ["bash", "-c","/var/www/convert-document/startServer.sh && node /var/www/convert-document/src/index.js"]
