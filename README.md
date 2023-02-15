@@ -27,3 +27,20 @@ curl -v -k -d "paths=/var/www/xxx/app/1.docx&out_put=/var/www/xxx/app/2.pdf"  ht
 |:-------|:------------------------------------------|:-------|
 | paths | word文档地址，多个使用英文逗号拼接（文件需要映射到容器里）          | string |
 | out_put | 保存的pdf文档地址                                | string |
+
+
+返回值说明
+
+| 字段     | 说明                                        | 格式     |
+|:-------|:------------------------------------------|:-------|
+| code | 状态码，0 成功 -1 失败          | int |
+| msg | 处理结果信息                                | string |
+
+```js
+// 成功
+{code:0,msg:"success"}
+
+// 失败
+{code:-1,msg:"file not found"}
+
+```
