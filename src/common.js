@@ -1,6 +1,7 @@
 const crypto = require('crypto')
 const request =  require('request')
 const fs =  require('fs')
+const path =  require('path')
 
 
 const Common = {
@@ -47,6 +48,11 @@ const Common = {
                 if (err){
                     throw `读取目录失败 ${err}`
                 }
+            }).sort((a, b) => {
+                const numA = parseInt(path.basename(a, path.extname(a)));
+                const numB = parseInt(path.basename(b, path.extname(b)));
+
+                return numA - numB;
             }).map(item => dir+"/"+item).join(spe)
         }else{
             throw dir+" not found"
